@@ -21,9 +21,18 @@ async function readInput(request: Request) {
   return request.json();
 }
 
+function isHtmlForm(contentType: string): boolean {
+  return contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded");
+}
+
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL("/login", request.url), 303);
+}
+
 export async function POST(request: Request) {
+  const contentType = request.headers.get("content-type") ?? "";
+
   try {
-    const contentType = request.headers.get("content-type") ?? "";
     const input = memberLoginSchema.parse(await readInput(request));
     const session = await new CoopMemberAuthService().login(input);
     const token = createCoopMemberSessionToken(session);
@@ -40,7 +49,7 @@ export async function POST(request: Request) {
       { memberNo: session.memberNo }
     );
 
-    const response = contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")
+    const response = isHtmlForm(contentType)
       ? NextResponse.redirect(new URL("/member", request.url), 303)
       : ok({ memberNo: session.memberNo, displayName: session.displayName });
 
@@ -54,6 +63,10 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
+    if (isHtmlForm(contentType)) {
+      return NextResponse.redirect(new URL("/login?error=invalid", request.url), 303);
+    }
+
     return fail("INVALID_MEMBER_LOGIN", error instanceof Error ? error.message : "เข้าสู่ระบบไม่สำเร็จ", 401);
   }
 }

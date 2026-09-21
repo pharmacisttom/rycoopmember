@@ -1,6 +1,8 @@
 import { LogIn } from "lucide-react";
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: { searchParams?: { error?: string } }) {
+  const hasLoginError = searchParams?.error === "invalid";
+
   return (
     <main className="min-h-screen bg-[#f5f8fb] px-4 py-8">
       <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_420px]">
@@ -19,6 +21,11 @@ export default function LoginPage() {
 
         <form action="/api/v1/coop/auth/login" method="post" className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">
           <h2 className="text-xl font-bold text-navy-900">Member Login</h2>
+          {hasLoginError ? (
+            <p className="mt-4 rounded-md bg-red-50 p-3 text-sm font-semibold text-red-700">
+              เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบเลขสมาชิก เลขบัตรประชาชน และเบอร์โทรปัจจุบัน
+            </p>
+          ) : null}
           <div className="mt-4 grid gap-3">
             <label className="grid gap-2 font-semibold text-slate-700">
               เลขสมาชิก
