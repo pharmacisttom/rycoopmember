@@ -11,6 +11,7 @@ export type TomvisPrincipal = {
 const defaultPermissions = [
   "coop.self.read",
   "coop.profile.change.request",
+  "coop.beneficiary.assign",
   "coop.shares.read",
   "coop.deposits.read",
   "coop.loans.read",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { ArrowRight, FileText, HandHeart, Landmark, MessageCircle, PiggyBank, ShieldCheck, TicketCheck, type LucideIcon } from "lucide-react";
+import { ArrowRight, FileText, HandHeart, Landmark, MessageCircle, PiggyBank, ShieldCheck, TicketCheck, UsersRound, type LucideIcon } from "lucide-react";
 import { getTomvisAuthContext } from "@/core/auth/context";
 import { formatMoney, formatThaiDate } from "@/modules/coop/application/format";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
@@ -8,6 +8,7 @@ import { CoopMemberService } from "@/modules/coop/services/member-service";
 const quickActions: Array<{ href: Route; label: string; icon: LucideIcon }> = [
   { href: "/member/dividend", label: "ปันผล", icon: PiggyBank },
   { href: "/member/loans", label: "เงินกู้", icon: Landmark },
+  { href: "/member/beneficiaries", label: "ทายาท", icon: UsersRound },
   { href: "/member/statements", label: "Statement", icon: FileText },
   { href: "/member/welfare", label: "สวัสดิการ", icon: HandHeart },
   { href: "/member/chat", label: "Chat", icon: MessageCircle },
@@ -54,7 +55,7 @@ export default async function MemberDashboardPage() {
 
       <section className="mt-4 rounded-md border border-slate-200 bg-white p-4 shadow-soft">
         <h2 className="text-lg font-bold text-navy-900">เมนูลัด</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (

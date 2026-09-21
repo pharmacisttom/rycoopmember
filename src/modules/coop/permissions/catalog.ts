@@ -1,6 +1,7 @@
 export const coopPermissions = {
   selfRead: "coop.self.read",
   profileChangeRequest: "coop.profile.change.request",
+  beneficiaryAssign: "coop.beneficiary.assign",
   sharesRead: "coop.shares.read",
   depositsRead: "coop.deposits.read",
   loansRead: "coop.loans.read",
@@ -33,7 +34,8 @@ export type CoopPermission = (typeof coopPermissions)[keyof typeof coopPermissio
 
 export const coopPermissionCatalog: Array<{ key: CoopPermission; description: string; audience: "member" | "staff" }> = [
   { key: coopPermissions.selfRead, description: "อ่านข้อมูลตนเอง", audience: "member" },
-  { key: coopPermissions.profileChangeRequest, description: "ขอแก้ไขข้อมูลสมาชิก", audience: "member" },
+  { key: coopPermissions.profileChangeRequest, description: "ขอแก้ไขข้อมูลสมาชิกและรูปโปรไฟล์", audience: "member" },
+  { key: coopPermissions.beneficiaryAssign, description: "จัดทำคำขอมอบหมายสินทรัพย์ให้ทายาท", audience: "member" },
   { key: coopPermissions.sharesRead, description: "อ่านข้อมูลหุ้น", audience: "member" },
   { key: coopPermissions.depositsRead, description: "อ่านข้อมูลเงินฝาก", audience: "member" },
   { key: coopPermissions.loansRead, description: "อ่านข้อมูลเงินกู้", audience: "member" },

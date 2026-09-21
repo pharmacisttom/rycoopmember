@@ -30,6 +30,27 @@ export type CoopMemberProfile = {
   emergencyContact: string;
 };
 
+export type AssetBeneficiaryAllocation = {
+  assetType: "SHARES" | "DEPOSITS" | "DIVIDEND" | "PATRONAGE_REFUND" | "WELFARE" | "OTHER";
+  assetLabel: string;
+  percent: number;
+  note?: string;
+};
+
+export type AssetBeneficiaryAssignment = {
+  id: string;
+  requestNumber: string;
+  beneficiaryFullName: string;
+  relationship: string;
+  citizenIdMasked: string;
+  phone: string;
+  address: string;
+  allocations: AssetBeneficiaryAllocation[];
+  witnessName: string;
+  status: "DRAFT" | "READY_TO_SUBMIT" | "SUBMITTED" | "APPROVED";
+  generatedAt: string;
+};
+
 export type FinancialSummary = {
   shareCapital: Money;
   totalDeposits: Money;
@@ -137,5 +158,6 @@ export type MemberDashboard = {
   welfare: WelfareBenefit[];
   requests: ServiceRequestSummary[];
   announcements: Announcement[];
+  assetBeneficiaryAssignments: AssetBeneficiaryAssignment[];
   unreadMessages: number;
 };

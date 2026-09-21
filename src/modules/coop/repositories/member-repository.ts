@@ -15,6 +15,7 @@ const dashboard: MemberDashboard = {
     prefix: "นาย",
     firstName: "สมชาย",
     lastName: "ใจดี",
+    avatarUrl: undefined,
     citizenIdMasked: "1-XXXX-XXXXX-45-6",
     birthDate: "1982-02-14",
     gender: "MALE",
@@ -123,6 +124,25 @@ const dashboard: MemberDashboard = {
   announcements: [
     { id: "ann_1", category: "ข่าวปันผล", title: "ประกาศกำหนดจ่ายเงินปันผลและเงินเฉลี่ยคืน", publishedAt: "2026-09-18", pinned: true },
     { id: "ann_2", category: "สวัสดิการ", title: "เปิดรับคำขอสวัสดิการการศึกษาบุตร", publishedAt: "2026-09-10", pinned: false }
+  ],
+  assetBeneficiaryAssignments: [
+    {
+      id: "beneficiary_assignment_1",
+      requestNumber: "BEN-2569-000045",
+      beneficiaryFullName: "นางสาวสมใจ ใจดี",
+      relationship: "บุตร",
+      citizenIdMasked: "1-XXXX-XXXXX-88-1",
+      phone: "08X-XXX-2244",
+      address: "อำเภอเมืองระยอง จังหวัดระยอง",
+      witnessName: "นายวิชัย แสงดี",
+      status: "READY_TO_SUBMIT",
+      generatedAt: "2026-09-21T10:00:00+07:00",
+      allocations: [
+        { assetType: "SHARES", assetLabel: "หุ้นสะสม", percent: 50, note: "มอบตามสัดส่วนที่ระบุ" },
+        { assetType: "DEPOSITS", assetLabel: "บัญชีเงินฝากทุกประเภท", percent: 30 },
+        { assetType: "DIVIDEND", assetLabel: "เงินปันผลและเงินเฉลี่ยคืนค้างรับ", percent: 20 }
+      ]
+    }
   ],
   unreadMessages: 2
 };

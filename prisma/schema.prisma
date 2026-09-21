@@ -51,6 +51,7 @@ model CoopMember {
   addresses      CoopAddress[]
   bankAccounts   CoopBankAccount[]
   beneficiaries  CoopBeneficiary[]
+  assetBeneficiaryAssignments AssetBeneficiaryAssignment[]
   shares         ShareAccount[]
   deposits       DepositAccount[]
   loans          Loan[]
@@ -112,6 +113,40 @@ model CoopBeneficiary {
   fullName       String
   relationship   String
   phone          String?
+}
+
+model AssetBeneficiaryAssignment {
+  id                  String                         @id @default(cuid())
+  organizationId      String
+  memberId            String
+  member              CoopMember                     @relation(fields: [memberId], references: [id])
+  requestNumber       String
+  beneficiaryFullName String
+  relationship        String
+  citizenIdEncrypted  String
+  citizenIdLookupHash String
+  phone               String
+  address             String
+  witnessName         String
+  status              RequestStatus                  @default(SUBMITTED)
+  generatedAt         DateTime                       @default(now())
+  submittedAt         DateTime?
+  allocations         AssetBeneficiaryAllocation[]
+
+  @@unique([organizationId, requestNumber])
+  @@index([organizationId, memberId])
+  @@index([organizationId, citizenIdLookupHash])
+}
+
+model AssetBeneficiaryAllocation {
+  id             String                      @id @default(cuid())
+  organizationId String
+  assignmentId   String
+  assignment     AssetBeneficiaryAssignment  @relation(fields: [assignmentId], references: [id])
+  assetType      String
+  assetLabel     String
+  percent        Decimal                     @db.Decimal(5, 2)
+  note           String?
 }
 
 model CoopBankAccount {

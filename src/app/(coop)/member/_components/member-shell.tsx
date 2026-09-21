@@ -1,10 +1,23 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { Bell, FileText, HandCoins, Headphones, Home, Landmark, MessageCircle, ShieldCheck, UserRound, type LucideIcon } from "lucide-react";
+import {
+  Bell,
+  FileText,
+  HandCoins,
+  Headphones,
+  Home,
+  Landmark,
+  MessageCircle,
+  ShieldCheck,
+  UserRound,
+  UsersRound,
+  type LucideIcon
+} from "lucide-react";
 
 const navItems: Array<{ href: Route; label: string; icon: LucideIcon }> = [
   { href: "/member", label: "หน้าหลัก", icon: Home },
   { href: "/member/profile", label: "ข้อมูลสมาชิก", icon: UserRound },
+  { href: "/member/beneficiaries", label: "ทายาท", icon: UsersRound },
   { href: "/member/shares", label: "หุ้น", icon: HandCoins },
   { href: "/member/deposits", label: "เงินฝาก", icon: Landmark },
   { href: "/member/statements", label: "Statement", icon: FileText },
