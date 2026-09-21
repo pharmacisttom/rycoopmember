@@ -1,0 +1,508 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum CoopMemberStatus {
+  ACTIVE
+  SUSPENDED
+  RESIGNED
+}
+
+enum RequestStatus {
+  DRAFT
+  SUBMITTED
+  RECEIVED
+  ASSIGNED
+  IN_PROGRESS
+  WAITING_MEMBER
+  WAITING_INTERNAL
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MessageVisibility {
+  MEMBER_VISIBLE
+  STAFF_INTERNAL
+  SYSTEM
+}
+
+model CoopMember {
+  id             String            @id @default(cuid())
+  organizationId String
+  userId         String?
+  memberNo       String
+  status         CoopMemberStatus  @default(ACTIVE)
+  memberType     String
+  joinDate       DateTime
+  profile        CoopMemberProfile?
+  addresses      CoopAddress[]
+  bankAccounts   CoopBankAccount[]
+  beneficiaries  CoopBeneficiary[]
+  shares         ShareAccount[]
+  deposits       DepositAccount[]
+  loans          Loan[]
+  dividends      Dividend[]
+  welfareRequests WelfareRequest[]
+  serviceRequests ServiceRequest[]
+  tickets        HelpdeskTicket[]
+  documents      MemberDocument[]
+  notifications  Notification[]
+  changeRequests MemberChangeRequest[]
+  surveys        SatisfactionSurvey[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@unique([organizationId, memberNo])
+  @@index([organizationId, userId])
+}
+
+model CoopMemberProfile {
+  id                  String     @id @default(cuid())
+  organizationId      String
+  memberId            String     @unique
+  member              CoopMember @relation(fields: [memberId], references: [id])
+  prefix              String
+  firstName           String
+  lastName            String
+  citizenIdEncrypted  String
+  citizenIdLookupHash String
+  birthDate           DateTime
+  gender              String
+  organizationName    String
+  department          String
+  position            String
+  salary              Decimal    @db.Decimal(18, 2)
+  phone               String
+  email               String
+  emergencyContact    String?
+
+  @@index([organizationId, citizenIdLookupHash])
+}
+
+model CoopAddress {
+  id             String     @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember @relation(fields: [memberId], references: [id])
+  type           String
+  line1          String
+  province       String
+  district       String
+  postalCode     String
+}
+
+model CoopBeneficiary {
+  id             String     @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember @relation(fields: [memberId], references: [id])
+  fullName       String
+  relationship   String
+  phone          String?
+}
+
+model CoopBankAccount {
+  id                     String     @id @default(cuid())
+  organizationId         String
+  memberId               String
+  member                 CoopMember @relation(fields: [memberId], references: [id])
+  bankName               String
+  accountNoEncrypted     String
+  accountNoLookupHash    String
+  isDividendReceiving    Boolean    @default(false)
+}
+
+model ShareAccount {
+  id             String             @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember         @relation(fields: [memberId], references: [id])
+  shareQty       Int
+  shareValue     Decimal            @db.Decimal(18, 2)
+  monthlyShare   Decimal            @db.Decimal(18, 2)
+  transactions   ShareTransaction[]
+}
+
+model ShareTransaction {
+  id             String       @id @default(cuid())
+  organizationId String
+  shareAccountId String
+  shareAccount   ShareAccount @relation(fields: [shareAccountId], references: [id])
+  postedAt       DateTime
+  description    String
+  shareQty       Int
+  amount         Decimal      @db.Decimal(18, 2)
+}
+
+model DepositAccount {
+  id                  String               @id @default(cuid())
+  organizationId      String
+  memberId            String
+  member              CoopMember           @relation(fields: [memberId], references: [id])
+  accountType         String
+  accountNoEncrypted  String
+  accountNoLookupHash String
+  balance             Decimal              @db.Decimal(18, 2)
+  interestAccrued     Decimal              @db.Decimal(18, 2)
+  transactions        DepositTransaction[]
+}
+
+model DepositTransaction {
+  id               String         @id @default(cuid())
+  organizationId   String
+  depositAccountId String
+  depositAccount   DepositAccount @relation(fields: [depositAccountId], references: [id])
+  postedAt         DateTime
+  description      String
+  amount           Decimal        @db.Decimal(18, 2)
+  balanceAfter     Decimal        @db.Decimal(18, 2)
+}
+
+model LoanType {
+  id             String @id @default(cuid())
+  organizationId String
+  name           String
+  interestRate   Decimal @db.Decimal(8, 4)
+  loans          Loan[]
+}
+
+model Loan {
+  id                   String           @id @default(cuid())
+  organizationId       String
+  memberId             String
+  member               CoopMember       @relation(fields: [memberId], references: [id])
+  loanTypeId           String
+  loanType             LoanType         @relation(fields: [loanTypeId], references: [id])
+  contractNo           String
+  originalPrincipal    Decimal          @db.Decimal(18, 2)
+  outstandingPrincipal Decimal          @db.Decimal(18, 2)
+  installmentAmount    Decimal          @db.Decimal(18, 2)
+  currentInstallment   Int
+  totalInstallments    Int
+  nextPaymentDate      DateTime?
+  status               String
+  installments         LoanInstallment[]
+  payments             LoanPayment[]
+  guarantors           LoanGuarantor[]
+
+  @@unique([organizationId, contractNo])
+}
+
+model LoanInstallment {
+  id             String   @id @default(cuid())
+  organizationId String
+  loanId         String
+  loan           Loan     @relation(fields: [loanId], references: [id])
+  installmentNo  Int
+  dueDate        DateTime
+  principalDue   Decimal  @db.Decimal(18, 2)
+  interestDue    Decimal  @db.Decimal(18, 2)
+  status         String
+}
+
+model LoanPayment {
+  id             String   @id @default(cuid())
+  organizationId String
+  loanId         String
+  loan           Loan     @relation(fields: [loanId], references: [id])
+  paidAt         DateTime
+  principalPaid  Decimal  @db.Decimal(18, 2)
+  interestPaid   Decimal  @db.Decimal(18, 2)
+  reference      String?
+}
+
+model LoanGuarantor {
+  id              String @id @default(cuid())
+  organizationId  String
+  loanId          String
+  loan            Loan   @relation(fields: [loanId], references: [id])
+  guarantorMemberId String
+  guaranteeAmount Decimal @db.Decimal(18, 2)
+  status          String
+  startDate       DateTime
+}
+
+model Dividend {
+  id               String            @id @default(cuid())
+  organizationId   String
+  memberId         String
+  member           CoopMember        @relation(fields: [memberId], references: [id])
+  fiscalYear       Int
+  averageShares    Decimal           @db.Decimal(18, 2)
+  dividendRate     Decimal           @db.Decimal(8, 4)
+  dividendAmount   Decimal           @db.Decimal(18, 2)
+  payment          DividendPayment?
+  patronageRefund  PatronageRefund?
+  approvedAt       DateTime?
+
+  @@unique([organizationId, memberId, fiscalYear])
+}
+
+model DividendPayment {
+  id             String   @id @default(cuid())
+  organizationId String
+  dividendId     String   @unique
+  dividend       Dividend @relation(fields: [dividendId], references: [id])
+  amount         Decimal  @db.Decimal(18, 2)
+  paidAt         DateTime?
+  channel        String
+  reference      String?
+}
+
+model PatronageRefund {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  dividendId           String   @unique
+  dividend             Dividend @relation(fields: [dividendId], references: [id])
+  eligibleLoanInterest Decimal  @db.Decimal(18, 2)
+  patronageRate        Decimal  @db.Decimal(8, 4)
+  amount               Decimal  @db.Decimal(18, 2)
+}
+
+model WelfareType {
+  id             String @id @default(cuid())
+  organizationId String
+  name           String
+  entitlement    Decimal @db.Decimal(18, 2)
+  isActive       Boolean @default(true)
+  requests       WelfareRequest[]
+}
+
+model WelfareRequest {
+  id             String        @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember    @relation(fields: [memberId], references: [id])
+  welfareTypeId  String
+  welfareType    WelfareType   @relation(fields: [welfareTypeId], references: [id])
+  status         RequestStatus @default(SUBMITTED)
+  requestedAmount Decimal      @db.Decimal(18, 2)
+}
+
+model ServiceRequest {
+  id             String                  @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember              @relation(fields: [memberId], references: [id])
+  number         String
+  type           String
+  subject        String
+  status         RequestStatus           @default(SUBMITTED)
+  messages       ServiceRequestMessage[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@unique([organizationId, number])
+}
+
+model ServiceRequestMessage {
+  id               String         @id @default(cuid())
+  organizationId   String
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  authorUserId     String
+  body             String
+  createdAt        DateTime       @default(now())
+}
+
+model Conversation {
+  id             String                    @id @default(cuid())
+  organizationId String
+  topic          String
+  ticketId       String?
+  participants   ConversationParticipant[]
+  messages       ChatMessage[]
+  createdAt      DateTime                  @default(now())
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  organizationId String
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  userId         String
+  participantType String
+}
+
+model ChatMessage {
+  id             String            @id @default(cuid())
+  organizationId String
+  conversationId String
+  conversation   Conversation      @relation(fields: [conversationId], references: [id])
+  authorUserId   String
+  body           String
+  visibility     MessageVisibility @default(MEMBER_VISIBLE)
+  readAt         DateTime?
+  createdAt      DateTime          @default(now())
+}
+
+model HelpdeskTicket {
+  id             String                @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember            @relation(fields: [memberId], references: [id])
+  number         String
+  category       String
+  priority       TicketPriority        @default(NORMAL)
+  status         RequestStatus         @default(SUBMITTED)
+  firstResponseDueAt DateTime?
+  resolutionDueAt    DateTime?
+  messages       TicketMessage[]
+  assignments    TicketAssignment[]
+  histories      TicketStatusHistory[]
+  surveys        SatisfactionSurvey[]
+
+  @@unique([organizationId, number])
+}
+
+model TicketMessage {
+  id             String            @id @default(cuid())
+  organizationId String
+  ticketId       String
+  ticket         HelpdeskTicket    @relation(fields: [ticketId], references: [id])
+  authorUserId   String
+  body           String
+  visibility     MessageVisibility @default(MEMBER_VISIBLE)
+  createdAt      DateTime          @default(now())
+}
+
+model TicketAssignment {
+  id             String         @id @default(cuid())
+  organizationId String
+  ticketId       String
+  ticket         HelpdeskTicket @relation(fields: [ticketId], references: [id])
+  assignedToUserId String
+  assignedByUserId String
+  assignedAt     DateTime       @default(now())
+}
+
+model TicketStatusHistory {
+  id             String         @id @default(cuid())
+  organizationId String
+  ticketId       String
+  ticket         HelpdeskTicket @relation(fields: [ticketId], references: [id])
+  fromStatus     RequestStatus?
+  toStatus       RequestStatus
+  changedByUserId String
+  changedAt      DateTime       @default(now())
+}
+
+model Document {
+  id             String           @id @default(cuid())
+  organizationId String
+  name           String
+  documentType   String
+  storageKey     String
+  mimeType       String
+  sizeBytes      Int
+  members        MemberDocument[]
+}
+
+model MemberDocument {
+  id             String     @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember @relation(fields: [memberId], references: [id])
+  documentId     String
+  document       Document   @relation(fields: [documentId], references: [id])
+  fiscalYear     Int?
+  generatedAt    DateTime?
+  downloadedAt   DateTime?
+}
+
+model Notification {
+  id             String     @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember @relation(fields: [memberId], references: [id])
+  title          String
+  body           String
+  channel        String
+  readAt         DateTime?
+  createdAt      DateTime   @default(now())
+}
+
+model NotificationPreference {
+  id             String  @id @default(cuid())
+  organizationId String
+  userId         String
+  inAppEnabled   Boolean @default(true)
+  emailEnabled   Boolean @default(true)
+  lineEnabled    Boolean @default(false)
+  smsEnabled     Boolean @default(false)
+}
+
+model Announcement {
+  id             String   @id @default(cuid())
+  organizationId String
+  category       String
+  title          String
+  body           String
+  publishAt      DateTime
+  expireAt       DateTime?
+  pinned         Boolean  @default(false)
+  targetGroup    String?
+}
+
+model ImportBatch {
+  id             String      @id @default(cuid())
+  organizationId String
+  filename       String
+  uploadedBy     String
+  rowCount       Int         @default(0)
+  successCount   Int         @default(0)
+  errorCount     Int         @default(0)
+  status         String
+  completedAt    DateTime?
+  rows           ImportRow[]
+  createdAt      DateTime    @default(now())
+}
+
+model ImportRow {
+  id             String      @id @default(cuid())
+  organizationId String
+  batchId        String
+  batch          ImportBatch @relation(fields: [batchId], references: [id])
+  rowNumber      Int
+  rawJson        Json
+  errorJson      Json?
+  status         String
+}
+
+model MemberChangeRequest {
+  id             String        @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember    @relation(fields: [memberId], references: [id])
+  fieldName      String
+  oldValueMasked String?
+  newValueEncrypted String?
+  status         RequestStatus @default(SUBMITTED)
+}
+
+model SatisfactionSurvey {
+  id             String          @id @default(cuid())
+  organizationId String
+  memberId       String
+  member         CoopMember      @relation(fields: [memberId], references: [id])
+  ticketId       String?
+  ticket         HelpdeskTicket? @relation(fields: [ticketId], references: [id])
+  speedRating    Int
+  clarityRating  Int
+  satisfactionRating Int
+  comment        String?
+  createdAt      DateTime        @default(now())
+}
