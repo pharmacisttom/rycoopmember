@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const contentType = request.headers.get("content-type") ?? "";
     const input = memberProfileUpdateSchema.parse(await readInput(request));
     const data = await new CoopMemberService().createProfileUpdateRequest(await getTomvisAuthContext(), input);
-    if (contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) {
+    if ((contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) && request.headers.get("x-sweetalert-form") !== "1") {
       return NextResponse.redirect(new URL("/member/requests", request.url), 303);
     }
 

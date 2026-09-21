@@ -1,4 +1,5 @@
 import { Camera, Send } from "lucide-react";
+import { SweetAlertForm } from "@/app/_components/sweet-alert-form";
 import { getTomvisAuthContext } from "@/core/auth/context";
 import { formatMoney, formatThaiDate } from "@/modules/coop/application/format";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
@@ -45,7 +46,16 @@ export default async function ProfilePage() {
       </StatePanel>
 
       <StatePanel title="เพิ่มรูปและแก้ไขข้อมูลส่วนบุคคล">
-        <form action="/api/v1/coop/me/profile-change" method="post" encType="multipart/form-data" className="grid gap-3">
+        <SweetAlertForm
+          action="/api/v1/coop/me/profile-change"
+          className="grid gap-3"
+          confirmTitle="ยืนยันการยื่นคำร้อง?"
+          confirmText="ระบบจะส่งข้อมูลให้เจ้าหน้าที่ตรวจสอบก่อนบันทึกจริง"
+          successTitle="ยื่นคำร้องแล้ว"
+          successText="สามารถติดตามสถานะได้ที่หน้าคำร้องออนไลน์"
+          errorTitle="ยื่นคำร้องไม่สำเร็จ"
+          redirectTo="/member/requests"
+        >
           <label className="grid gap-2 font-semibold text-slate-700">
             รูปสมาชิก
             <span className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500">
@@ -83,7 +93,7 @@ export default async function ProfilePage() {
             <Send className="h-5 w-5" aria-hidden />
             ยื่นคำร้องแก้ไขข้อมูล
           </button>
-        </form>
+        </SweetAlertForm>
       </StatePanel>
     </div>
   );

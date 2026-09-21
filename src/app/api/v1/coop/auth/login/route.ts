@@ -25,6 +25,10 @@ function isHtmlForm(contentType: string): boolean {
   return contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded");
 }
 
+function isSweetAlertForm(request: Request): boolean {
+  return request.headers.get("x-sweetalert-form") === "1";
+}
+
 export async function GET(request: Request) {
   return NextResponse.redirect(new URL("/login", request.url), 303);
 }
@@ -49,7 +53,7 @@ export async function POST(request: Request) {
       { memberNo: session.memberNo }
     );
 
-    const response = isHtmlForm(contentType)
+    const response = isHtmlForm(contentType) && !isSweetAlertForm(request)
       ? NextResponse.redirect(new URL("/member", request.url), 303)
       : ok({ memberNo: session.memberNo, displayName: session.displayName });
 
@@ -63,7 +67,7 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
-    if (isHtmlForm(contentType)) {
+    if (isHtmlForm(contentType) && !isSweetAlertForm(request)) {
       return NextResponse.redirect(new URL("/login?error=invalid", request.url), 303);
     }
 

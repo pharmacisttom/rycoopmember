@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { SweetAlertLogoutButton } from "@/app/_components/sweet-alert-logout-button";
 import {
   Bell,
   FileText,
@@ -35,11 +36,7 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
           <Link href="/member" className="text-base font-bold sm:text-lg">
             ระบบสมาชิกสหกรณ์
           </Link>
-          <form action="/api/v1/coop/auth/logout" method="post">
-            <button className="rounded-md bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20">
-              ออกจากระบบ
-            </button>
-          </form>
+          <SweetAlertLogoutButton />
         </div>
       </header>
       <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 lg:grid-cols-[248px_1fr]">

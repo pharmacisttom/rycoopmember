@@ -1,4 +1,6 @@
 import { LogIn } from "lucide-react";
+import { SweetAlertForm } from "@/app/_components/sweet-alert-form";
+import { SweetAlertNotice } from "@/app/_components/sweet-alert-notice";
 
 export default function LoginPage({ searchParams }: { searchParams?: { error?: string } }) {
   const hasLoginError = searchParams?.error === "invalid";
@@ -19,7 +21,23 @@ export default function LoginPage({ searchParams }: { searchParams?: { error?: s
           </div>
         </div>
 
-        <form action="/api/v1/coop/auth/login" method="post" className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">
+        {hasLoginError ? (
+          <SweetAlertNotice
+            type="error"
+            title="เข้าสู่ระบบไม่สำเร็จ"
+            text="กรุณาตรวจสอบเลขสมาชิก เลขบัตรประชาชน และเบอร์โทรปัจจุบัน"
+          />
+        ) : null}
+
+        <SweetAlertForm
+          action="/api/v1/coop/auth/login"
+          className="rounded-md border border-slate-200 bg-white p-5 shadow-soft"
+          encType="multipart/form-data"
+          successTitle="เข้าสู่ระบบสำเร็จ"
+          successText="กำลังพาไปหน้าสมาชิก"
+          errorTitle="เข้าสู่ระบบไม่สำเร็จ"
+          redirectTo="/member"
+        >
           <h2 className="text-xl font-bold text-navy-900">Member Login</h2>
           {hasLoginError ? (
             <p className="mt-4 rounded-md bg-red-50 p-3 text-sm font-semibold text-red-700">
@@ -47,7 +65,7 @@ export default function LoginPage({ searchParams }: { searchParams?: { error?: s
             <LogIn className="h-5 w-5" aria-hidden />
             เข้าสู่ระบบ
           </button>
-        </form>
+        </SweetAlertForm>
       </section>
     </main>
   );

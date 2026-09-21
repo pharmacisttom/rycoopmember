@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FileText, Send } from "lucide-react";
+import { SweetAlertForm } from "@/app/_components/sweet-alert-form";
 import { getTomvisAuthContext } from "@/core/auth/context";
 import { formatThaiDate } from "@/modules/coop/application/format";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
@@ -37,7 +38,16 @@ export default async function BeneficiariesPage() {
       </StatePanel>
 
       <StatePanel title="กรอกคำขอมอบหมายสินทรัพย์ให้ทายาท">
-        <form action="/api/v1/coop/me/beneficiary-assignments" method="post" className="grid gap-4">
+        <SweetAlertForm
+          action="/api/v1/coop/me/beneficiary-assignments"
+          className="grid gap-4"
+          confirmTitle="ยืนยันการจัดทำคำขอ?"
+          confirmText="ระบบจะสร้างรายงานสำหรับพิมพ์และยื่นกับสหกรณ์"
+          successTitle="จัดทำคำขอแล้ว"
+          successText="กำลังเปิดรายงานสำหรับยื่นสหกรณ์"
+          errorTitle="จัดทำคำขอไม่สำเร็จ"
+          redirectTo="/member/beneficiaries/report"
+        >
           <div className="grid gap-3 md:grid-cols-2">
             <label className="grid gap-2 font-semibold text-slate-700">
               ชื่อ-นามสกุลทายาท
@@ -86,7 +96,7 @@ export default async function BeneficiariesPage() {
             <Send className="h-5 w-5" aria-hidden />
             บันทึกคำขอและออกรายงาน
           </button>
-        </form>
+        </SweetAlertForm>
       </StatePanel>
     </div>
   );

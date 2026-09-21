@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const contentType = request.headers.get("content-type") ?? "";
     const input = assetBeneficiaryAssignmentSchema.parse(await readInput(request));
     const data = await new CoopMemberService().createAssetBeneficiaryAssignment(await getTomvisAuthContext(), input);
-    if (contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) {
+    if ((contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) && request.headers.get("x-sweetalert-form") !== "1") {
       return NextResponse.redirect(new URL("/member/beneficiaries/report", request.url), 303);
     }
 
