@@ -1,4 +1,7 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { verifyCoopMemberSessionToken } from "@/core/auth/session";
+
+export const coopSessionCookieName = "coop_member_session";
 
 export type TomvisPrincipal = {
   userId: string;
@@ -27,6 +30,17 @@ const defaultPermissions = [
 ];
 
 export async function getTomvisAuthContext(): Promise<TomvisPrincipal> {
+  const session = verifyCoopMemberSessionToken(cookies().get(coopSessionCookieName)?.value);
+  if (session) {
+    return {
+      userId: session.userId,
+      organizationId: session.organizationId,
+      memberId: session.memberId,
+      displayName: session.displayName,
+      permissions: session.permissions
+    };
+  }
+
   const requestHeaders = headers();
 
   return {

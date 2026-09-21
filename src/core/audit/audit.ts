@@ -1,6 +1,8 @@
 import type { TomvisPrincipal } from "@/core/auth/context";
 
 export type AuditAction =
+  | "LOGIN"
+  | "LOGOUT"
   | "PROFILE_VIEW"
   | "PROFILE_CHANGE_REQUEST_CREATED"
   | "ASSET_BENEFICIARY_ASSIGNMENT_CREATED"
