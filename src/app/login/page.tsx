@@ -12,12 +12,12 @@ export default function LoginPage({ searchParams }: { searchParams?: { error?: s
           <p className="text-sm font-semibold text-cyan-100">ระบบสมาชิกสหกรณ์</p>
           <h1 className="mt-2 text-3xl font-bold">เข้าสู่ระบบสมาชิก</h1>
           <div className="mt-6 grid gap-3 text-sm text-slate-100">
-            <p>ใช้เลขสมาชิกเป็นชื่อผู้ใช้</p>
-            <p>ใช้เลขบัตรประชาชนเป็นรหัสผ่าน</p>
-            <p>ใช้เบอร์โทรปัจจุบันเป็นรหัสยืนยัน</p>
+            <p>1. กรอกเลขบัตรประชาชน 13 หลัก</p>
+            <p>2. กรอกรหัสผ่านบัญชีเดิมของท่าน</p>
+
           </div>
-          <div className="mt-6 rounded-md bg-white/10 p-4 text-sm text-cyan-50">
-            ชุดทดสอบ scaffold: เลขสมาชิก RYS-001245, เลขบัตรประชาชน 1234567890456, เบอร์โทร 0899994821
+          <div className="mt-6 rounded-md bg-white/10 p-4 text-xs text-cyan-50">
+            หมายเหตุ: บัญชีของท่านได้รับการรักษาความปลอดภัยตามมาตรฐาน หากยังไม่มีบัญชีหรือต้องการเปลี่ยนรหัสผ่าน กรุณาติดต่อฝ่ายบริการสมาชิกสหกรณ์
           </div>
         </div>
 
@@ -25,7 +25,7 @@ export default function LoginPage({ searchParams }: { searchParams?: { error?: s
           <SweetAlertNotice
             type="error"
             title="เข้าสู่ระบบไม่สำเร็จ"
-            text="กรุณาตรวจสอบเลขสมาชิก เลขบัตรประชาชน และเบอร์โทรปัจจุบัน"
+            text="กรุณาตรวจสอบเลขบัตรประชาชนและรหัสผ่าน"
           />
         ) : null}
 
@@ -41,27 +41,23 @@ export default function LoginPage({ searchParams }: { searchParams?: { error?: s
           <h2 className="text-xl font-bold text-navy-900">Member Login</h2>
           {hasLoginError ? (
             <p className="mt-4 rounded-md bg-red-50 p-3 text-sm font-semibold text-red-700">
-              เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบเลขสมาชิก เลขบัตรประชาชน และเบอร์โทรปัจจุบัน
+              เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบเลขบัตรประชาชนและรหัสผ่าน
             </p>
           ) : null}
           <div className="mt-4 grid gap-3">
             <label className="grid gap-2 font-semibold text-slate-700">
-              เลขสมาชิก
-              <input name="memberNo" autoComplete="username" className="rounded-md border border-slate-300 p-3" placeholder="RYS-001245" />
+              เลขบัตรประชาชน
+              <input inputMode="numeric" minLength={13} maxLength={13} name="username" autoComplete="username" required className="rounded-md border border-slate-300 p-3" placeholder="กรอกข้อมูล" />
             </label>
             <label className="grid gap-2 font-semibold text-slate-700">
-              รหัสผ่านเลขบัตรประชาชน
-              <input name="citizenId" type="password" autoComplete="current-password" className="rounded-md border border-slate-300 p-3" />
-            </label>
-            <label className="grid gap-2 font-semibold text-slate-700">
-              รหัสยืนยันเบอร์โทรปัจจุบัน
-              <input name="phoneVerificationCode" inputMode="tel" className="rounded-md border border-slate-300 p-3" placeholder="0899994821" />
+              รหัสผ่าน
+              <input name="password" type="password" autoComplete="current-password" required className="rounded-md border border-slate-300 p-3" placeholder="กรอกข้อมูล" />
             </label>
           </div>
-          <p className="mt-4 rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-800">
-            ในระบบจริงเลขบัตรประชาชนและเบอร์โทรต้องตรวจด้วยข้อมูลที่เข้ารหัส/แฮชแล้ว และควรบังคับเปลี่ยนรหัสผ่านหลังเข้าสู่ระบบครั้งแรก
+          <p className="mt-4 rounded-md bg-slate-50 p-3 text-xs text-slate-500">
+            ระบบจะตรวจสอบบัญชีกับฐานข้อมูลกลางของสหกรณ์ หากเข้าสู่ระบบไม่สำเร็จเกิน 5 ครั้ง บัญชีจะถูกจำกัดเวลาชั่วคราวเพื่อความปลอดภัย
           </p>
-          <button className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy-900 px-4 py-3 font-bold text-white">
+          <button className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-navy-900 px-4 py-3 font-bold text-white hover:bg-navy-950 transition-colors">
             <LogIn className="h-5 w-5" aria-hidden />
             เข้าสู่ระบบ
           </button>

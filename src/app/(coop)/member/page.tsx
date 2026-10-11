@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { ArrowRight, FileText, HandHeart, Landmark, MessageCircle, PiggyBank, ShieldCheck, TicketCheck, UsersRound, type LucideIcon } from "lucide-react";
 import { getTomvisAuthContext } from "@/core/auth/context";
@@ -6,25 +7,25 @@ import { formatMoney, formatThaiDate } from "@/modules/coop/application/format";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
 
 const quickActions: Array<{ href: Route; label: string; icon: LucideIcon }> = [
-  { href: "/member/dividend", label: "ปันผล", icon: PiggyBank },
-  { href: "/member/loans", label: "เงินกู้", icon: Landmark },
-  { href: "/member/beneficiaries", label: "ทายาท", icon: UsersRound },
-  { href: "/member/statements", label: "Statement", icon: FileText },
-  { href: "/member/welfare", label: "สวัสดิการ", icon: HandHeart },
-  { href: "/member/chat", label: "Chat", icon: MessageCircle },
-  { href: "/member/help", label: "Helpdesk", icon: TicketCheck }
+ {href:"/member/dividend",label:"ปันผล",icon:PiggyBank},
+ {href:"/member/profile",label:"ข้อมูลสมาชิก",icon:UsersRound},
+ {href:"/member/requests",label:"คำร้อง",icon:FileText}
 ];
 
 export default async function MemberDashboardPage() {
   const context = await getTomvisAuthContext();
+  if (!context) {
+    redirect("/login");
+  }
+
   const data = await new CoopMemberService().getMyDashboard(context);
-  const memberName = `${data.profile.prefix}${data.profile.firstName} ${data.profile.lastName}`;
+  const memberName = `${data.profile.prefix || ""}${data.profile.firstName} ${data.profile.lastName}`.trim();
 
   const summaryCards = [
-    { label: "หุ้นสะสม", value: formatMoney(data.summary.shareCapital) },
-    { label: "เงินฝากรวม", value: formatMoney(data.summary.totalDeposits) },
-    { label: "หนี้คงเหลือ", value: formatMoney(data.summary.outstandingLoans) },
-    { label: "ปันผลล่าสุด", value: formatMoney(data.summary.latestDividend) }
+    { label: "หุ้นสะสม", value: "ยังไม่เชื่อมข้อมูล" },
+    { label: "เงินฝากรวม", value: "ยังไม่เชื่อมข้อมูล" },
+    { label: "หนี้คงเหลือ", value: "ยังไม่เชื่อมข้อมูล" },
+    { label: "ปันผลล่าสุด", value: data.dividends.length ? formatMoney(data.summary.latestDividend) : "ยังไม่มีข้อมูลปันผล" }
   ];
 
   return (
@@ -32,10 +33,12 @@ export default async function MemberDashboardPage() {
       <section className="rounded-md bg-navy-950 p-5 text-white shadow-soft">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-cyan-100">สวัสดี คุณ{data.profile.firstName}</p>
-            <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{memberName}</h1>
+            <p className="text-sm text-cyan-100">สวัสดี คุณ{data.profile.firstName || memberName}</p>
+            <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{memberName || "สมาชิกสหกรณ์"}</h1>
             <p className="mt-2 text-sm text-slate-200">สมาชิกเลขที่ {data.profile.memberNo} · {data.profile.department}</p>
-            <p className="text-sm text-slate-200">เป็นสมาชิกตั้งแต่ {formatThaiDate(data.profile.joinDate)}</p>
+            {data.profile.joinDate ? (
+              <p className="text-sm text-slate-200">เป็นสมาชิกตั้งแต่ {formatThaiDate(data.profile.joinDate)}</p>
+            ) : null}
           </div>
           <div className="flex items-center gap-2 rounded-md bg-emerald-400/15 px-3 py-2 text-sm font-semibold text-emerald-100">
             <ShieldCheck className="h-5 w-5" aria-hidden />
@@ -55,7 +58,7 @@ export default async function MemberDashboardPage() {
 
       <section className="mt-4 rounded-md border border-slate-200 bg-white p-4 shadow-soft">
         <h2 className="text-lg font-bold text-navy-900">เมนูลัด</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
@@ -77,24 +80,36 @@ export default async function MemberDashboardPage() {
             </Link>
           </div>
           <div className="mt-3 space-y-3">
-            {data.requests.map((request) => (
-              <div key={request.id} className="rounded-md bg-slate-50 p-3">
-                <p className="font-bold text-slate-800">{request.subject}</p>
-                <p className="text-sm text-slate-500">{request.number} · {request.status}</p>
-              </div>
-            ))}
+            {data.requests.length === 0 ? (
+              <p className="rounded-md bg-slate-50 p-4 text-center text-sm text-slate-500">
+                ยังไม่มีรายการคำร้องออนไลน์
+              </p>
+            ) : (
+              data.requests.map((request) => (
+                <div key={request.id} className="rounded-md bg-slate-50 p-3">
+                  <p className="font-bold text-slate-800">{request.subject}</p>
+                  <p className="text-sm text-slate-500">{request.number} · {request.status}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div className="rounded-md border border-slate-200 bg-white p-4 shadow-soft">
           <h2 className="text-lg font-bold text-navy-900">ข่าวล่าสุด</h2>
           <div className="mt-3 space-y-3">
-            {data.announcements.map((announcement) => (
-              <div key={announcement.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                <p className="text-sm font-semibold text-coop-blue">{announcement.category}</p>
-                <p className="font-bold text-slate-800">{announcement.title}</p>
-                <p className="text-sm text-slate-500">{formatThaiDate(announcement.publishedAt)}</p>
-              </div>
-            ))}
+            {data.announcements.length === 0 ? (
+              <p className="rounded-md bg-slate-50 p-4 text-center text-sm text-slate-500">
+                ไม่มีประกาศหรือข่าวสารใหม่
+              </p>
+            ) : (
+              data.announcements.map((announcement) => (
+                <div key={announcement.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                  <p className="text-sm font-semibold text-coop-blue">{announcement.category}</p>
+                  <p className="font-bold text-slate-800">{announcement.title}</p>
+                  <p className="text-sm text-slate-500">{formatThaiDate(announcement.publishedAt)}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

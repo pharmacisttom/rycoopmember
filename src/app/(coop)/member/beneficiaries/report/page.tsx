@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTomvisAuthContext } from "@/core/auth/context";
 import { formatThaiDate } from "@/modules/coop/application/format";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
@@ -5,9 +7,31 @@ import { StatePanel } from "../../_components/state-panel";
 import { PrintButton } from "./print-button";
 
 export default async function BeneficiaryReportPage() {
-  const data = await new CoopMemberService().getMyDashboard(await getTomvisAuthContext());
+  const context = await getTomvisAuthContext();
+  if (!context) {
+    redirect("/login");
+  }
+
+  const data = await new CoopMemberService().getMyDashboard(context);
   const assignment = data.assetBeneficiaryAssignments[0];
   const p = data.profile;
+
+  if (!assignment) {
+    return (
+      <StatePanel title="รายงานคำขอมอบหมายสินทรัพย์ให้ทายาท">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-8 text-center">
+          <p className="text-base font-semibold text-slate-700">ไม่พบรายการคำขอมอบหมายสินทรัพย์สำหรับออกรายงาน</p>
+          <p className="mt-1 text-sm text-slate-500">กรุณากรอกแบบฟอร์มคำขอที่หน้าทายาทและสินทรัพย์ก่อนพิมพ์รายงาน</p>
+          <Link
+            href="/member/beneficiaries"
+            className="mt-4 inline-flex items-center rounded-md bg-navy-900 px-4 py-2 font-bold text-white"
+          >
+            ไปที่หน้ากรอกคำขอมอบหมายสินทรัพย์
+          </Link>
+        </div>
+      </StatePanel>
+    );
+  }
 
   return (
     <StatePanel title="รายงานคำขอมอบหมายสินทรัพย์ให้ทายาท">
@@ -24,9 +48,9 @@ export default async function BeneficiaryReportPage() {
         <section className="mt-5 grid gap-3 md:grid-cols-2">
           <div>
             <p className="text-sm font-semibold text-slate-500">ข้อมูลสมาชิก</p>
-            <p className="mt-1 font-bold">{p.prefix}{p.firstName} {p.lastName}</p>
+            <p className="mt-1 font-bold">{p.prefix || ""}{p.firstName} {p.lastName}</p>
             <p>เลขสมาชิก {p.memberNo}</p>
-            <p>หน่วยงาน {p.department}</p>
+            <p>หน่วยงาน {p.department || "-"}</p>
             <p>เลขประชาชน {p.citizenIdMasked}</p>
           </div>
           <div>
@@ -34,7 +58,7 @@ export default async function BeneficiaryReportPage() {
             <p className="mt-1 font-bold">{assignment.beneficiaryFullName}</p>
             <p>ความสัมพันธ์ {assignment.relationship}</p>
             <p>เลขประชาชน {assignment.citizenIdMasked}</p>
-            <p>โทรศัพท์ {assignment.phone}</p>
+            <p>โทรศัพท์ {assignment.phone || "-"}</p>
           </div>
         </section>
 
@@ -68,7 +92,7 @@ export default async function BeneficiaryReportPage() {
 
         <section className="mt-8 grid gap-8 md:grid-cols-3">
           <div className="border-t border-slate-400 pt-2 text-center">สมาชิกผู้ยื่นคำขอ</div>
-          <div className="border-t border-slate-400 pt-2 text-center">{assignment.witnessName}</div>
+          <div className="border-t border-slate-400 pt-2 text-center">{assignment.witnessName || "พยาน"}</div>
           <div className="border-t border-slate-400 pt-2 text-center">เจ้าหน้าที่สหกรณ์</div>
         </section>
 

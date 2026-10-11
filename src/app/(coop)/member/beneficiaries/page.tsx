@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { FileText, Send } from "lucide-react";
 import { SweetAlertForm } from "@/app/_components/sweet-alert-form";
 import { getTomvisAuthContext } from "@/core/auth/context";
@@ -16,25 +17,37 @@ const assetOptions = [
 ];
 
 export default async function BeneficiariesPage() {
-  const data = await new CoopMemberService().getMyDashboard(await getTomvisAuthContext());
+  const context = await getTomvisAuthContext();
+  if (!context) {
+    redirect("/login");
+  }
+
+  const data = await new CoopMemberService().getMyDashboard(context);
 
   return (
     <div className="space-y-4 pb-20 lg:pb-0">
       <StatePanel title="ทายาทและการมอบหมายสินทรัพย์">
-        <div className="grid gap-3 md:grid-cols-2">
-          {data.assetBeneficiaryAssignments.map((assignment) => (
-            <article key={assignment.id} className="rounded-md border border-slate-200 p-4">
-              <p className="text-sm font-semibold text-coop-blue">{assignment.requestNumber}</p>
-              <h2 className="mt-1 text-lg font-bold text-navy-900">{assignment.beneficiaryFullName}</h2>
-              <p className="text-sm text-slate-500">{assignment.relationship} · สถานะ {assignment.status}</p>
-              <p className="mt-2 text-sm text-slate-600">จัดทำเมื่อ {formatThaiDate(assignment.generatedAt)}</p>
-              <Link href="/member/beneficiaries/report" className="mt-4 inline-flex items-center gap-2 rounded-md bg-navy-900 px-4 py-3 font-bold text-white">
-                <FileText className="h-5 w-5" aria-hidden />
-                เปิดรายงานยื่นสหกรณ์
-              </Link>
-            </article>
-          ))}
-        </div>
+        {data.assetBeneficiaryAssignments.length === 0 ? (
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-6 text-center">
+            <p className="text-base font-semibold text-slate-700">ยังไม่มีรายการมอบหมายสินทรัพย์ให้ทายาท</p>
+            <p className="mt-1 text-sm text-slate-500">ท่านสามารถกรอกแบบฟอร์มด้านล่างเพื่อจัดทำคำขอมอบหมายสินทรัพย์และพิมพ์รายงานสำหรับยื่นสหกรณ์</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {data.assetBeneficiaryAssignments.map((assignment) => (
+              <article key={assignment.id} className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-sm font-semibold text-coop-blue">{assignment.requestNumber}</p>
+                <h2 className="mt-1 text-lg font-bold text-navy-900">{assignment.beneficiaryFullName}</h2>
+                <p className="text-sm text-slate-500">{assignment.relationship} · สถานะ {assignment.status}</p>
+                <p className="mt-2 text-sm text-slate-600">จัดทำเมื่อ {formatThaiDate(assignment.generatedAt)}</p>
+                <Link href="/member/beneficiaries/report" className="mt-4 inline-flex items-center gap-2 rounded-md bg-navy-900 px-4 py-3 font-bold text-white">
+                  <FileText className="h-5 w-5" aria-hidden />
+                  เปิดรายงานยื่นสหกรณ์
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
       </StatePanel>
 
       <StatePanel title="กรอกคำขอมอบหมายสินทรัพย์ให้ทายาท">

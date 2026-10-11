@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Camera, Send } from "lucide-react";
 import { SweetAlertForm } from "@/app/_components/sweet-alert-form";
 import { getTomvisAuthContext } from "@/core/auth/context";
@@ -6,21 +7,27 @@ import { CoopMemberService } from "@/modules/coop/services/member-service";
 import { StatePanel } from "../_components/state-panel";
 
 export default async function ProfilePage() {
-  const data = await new CoopMemberService().getMyDashboard(await getTomvisAuthContext());
+  const context = await getTomvisAuthContext();
+  if (!context) {
+    redirect("/login");
+  }
+
+  const data = await new CoopMemberService().getMyDashboard(context);
   const p = data.profile;
+  const memberFullName = `${p.prefix || ""}${p.firstName} ${p.lastName}`.trim();
   const rows = [
     ["เลขสมาชิก", p.memberNo],
-    ["ชื่อ-นามสกุล", `${p.prefix}${p.firstName} ${p.lastName}`],
+    ["ชื่อ-นามสกุล", memberFullName],
     ["เลขประชาชน", p.citizenIdMasked],
     ["ประเภทสมาชิก", p.memberType],
-    ["วันที่เป็นสมาชิก", formatThaiDate(p.joinDate)],
-    ["หน่วยงาน", p.department],
-    ["ตำแหน่ง", p.position],
-    ["เงินเดือน", formatMoney(p.salary)],
-    ["โทรศัพท์", p.phone],
-    ["อีเมล", p.email],
-    ["บัญชีรับเงิน", p.bankAccountMasked],
-    ["ผู้รับผลประโยชน์เดิม", p.beneficiary]
+    ["วันที่เป็นสมาชิก", p.joinDate ? formatThaiDate(p.joinDate) : "-"],
+    ["หน่วยงาน", p.department || "-"],
+    ["ตำแหน่ง", p.position || "-"],
+    ["เงินเดือน", "ยังไม่เชื่อมข้อมูล"],
+    ["โทรศัพท์", p.phone || "-"],
+    ["อีเมล", p.email || "-"],
+    ["บัญชีรับเงิน", p.bankAccountMasked || "-"],
+    ["ผู้รับผลประโยชน์เดิม", p.beneficiary || "-"]
   ];
 
   return (
@@ -29,9 +36,9 @@ export default async function ProfilePage() {
         <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
           <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-center">
             <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-navy-900 text-3xl font-bold text-white">
-              {p.firstName.slice(0, 1)}
+              {p.firstName ? p.firstName.slice(0, 1) : "ม"}
             </div>
-            <p className="mt-3 font-bold text-navy-900">{p.prefix}{p.firstName} {p.lastName}</p>
+            <p className="mt-3 font-bold text-navy-900">{memberFullName}</p>
             <p className="text-sm text-slate-500">{p.memberNo}</p>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -62,7 +69,7 @@ export default async function ProfilePage() {
               <Camera className="mr-2 h-5 w-5" aria-hidden />
               เลือกไฟล์รูปภาพเพื่อแนบคำร้อง
             </span>
-            <input name="avatar" type="file" accept="image/png,image/jpeg" className="rounded-md border border-slate-300 p-3" />
+            <input disabled title="ระบบอัปโหลดรูปยังไม่พร้อมใช้งาน" name="avatar" type="file" accept="image/png,image/jpeg" className="rounded-md border border-slate-300 p-3" />
           </label>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="grid gap-2 font-semibold text-slate-700">
@@ -80,7 +87,7 @@ export default async function ProfilePage() {
           </label>
           <label className="grid gap-2 font-semibold text-slate-700">
             ผู้ติดต่อฉุกเฉิน
-            <input name="emergencyContact" defaultValue={p.emergencyContact} className="rounded-md border border-slate-300 p-3" />
+            <input disabled title="ข้อมูลนี้ยังไม่รองรับคำขอแก้ไข" name="emergencyContact" defaultValue={p.emergencyContact} className="rounded-md border border-slate-300 p-3" />
           </label>
           <label className="grid gap-2 font-semibold text-slate-700">
             หมายเหตุถึงเจ้าหน้าที่

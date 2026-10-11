@@ -1,7 +1,9 @@
+import { BackendError } from "@/modules/coop/adapters/legacy-api-client";
 import { NextResponse } from "next/server";
 import { fail, ok } from "@/core/api/response";
 import { coopSessionCookieName } from "@/core/auth/context";
 import { createCoopMemberSessionToken } from "@/core/auth/session";
+import { validateCsrfOrigin } from "@/core/security/csrf";
 import { writeAuditLog } from "@/core/audit/audit";
 import { memberLoginSchema } from "@/modules/coop/schemas/member-login";
 import { CoopMemberAuthService } from "@/modules/coop/services/member-auth-service";
@@ -12,9 +14,7 @@ async function readInput(request: Request) {
   if (contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) {
     const form = await request.formData();
     return {
-      memberNo: String(form.get("memberNo") ?? ""),
-      citizenId: String(form.get("citizenId") ?? ""),
-      phoneVerificationCode: String(form.get("phoneVerificationCode") ?? "")
+      username: String(form.get("username") ?? ""), password: String(form.get("password") ?? "")
     };
   }
 
@@ -35,6 +35,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
+
+  if (!validateCsrfOrigin(request)) {
+    return fail("CSRF_FORBIDDEN", "คำขอไม่ถูกต้อง", 403);
+  }
 
   try {
     const input = memberLoginSchema.parse(await readInput(request));
@@ -67,6 +71,7 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
+    if(error instanceof BackendError) return fail("BACKEND_ERROR",error.message,error.status);
     if (isHtmlForm(contentType) && !isSweetAlertForm(request)) {
       return NextResponse.redirect(new URL("/login?error=invalid", request.url), 303);
     }

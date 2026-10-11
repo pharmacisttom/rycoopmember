@@ -3,6 +3,8 @@ import type { TomvisPrincipal } from "@/core/auth/context";
 export type AuditAction =
   | "LOGIN"
   | "LOGOUT"
+  | "ADMIN_LOGIN"
+  | "ADMIN_LOGOUT"
   | "PROFILE_VIEW"
   | "PROFILE_CHANGE_REQUEST_CREATED"
   | "ASSET_BENEFICIARY_ASSIGNMENT_CREATED"
@@ -13,8 +15,17 @@ export type AuditAction =
   | "TICKET_CREATED"
   | "CHAT_MESSAGE_SENT";
 
+export type AuditActor = {
+  userId: string;
+  organizationId: string;
+  displayName?: string;
+  permissions?: string[];
+  memberNo?: string;
+  memberId?: string;
+};
+
 export async function writeAuditLog(
-  context: TomvisPrincipal,
+  context: AuditActor,
   action: AuditAction,
   metadata: Record<string, unknown>
 ): Promise<void> {

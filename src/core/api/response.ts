@@ -28,7 +28,7 @@ export function ok<T>(data: T, id = requestId()): NextResponse<ApiSuccess<T>> {
     success: true,
     data,
     meta: { requestId: id }
-  });
+  }, { headers: { "Cache-Control": "no-store, private" } });
 }
 
 export function fail(code: string, message: string, status = 400, id = requestId()): NextResponse<ApiFailure> {
@@ -38,6 +38,6 @@ export function fail(code: string, message: string, status = 400, id = requestId
       error: { code, message },
       meta: { requestId: id }
     },
-    { status }
+    { status, headers: { "Cache-Control": "no-store, private" } }
   );
 }

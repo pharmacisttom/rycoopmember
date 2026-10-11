@@ -16,16 +16,11 @@ import {
 } from "lucide-react";
 
 const navItems: Array<{ href: Route; label: string; icon: LucideIcon }> = [
-  { href: "/member", label: "หน้าหลัก", icon: Home },
-  { href: "/member/profile", label: "ข้อมูลสมาชิก", icon: UserRound },
-  { href: "/member/beneficiaries", label: "ทายาท", icon: UsersRound },
-  { href: "/member/shares", label: "หุ้น", icon: HandCoins },
-  { href: "/member/deposits", label: "เงินฝาก", icon: Landmark },
-  { href: "/member/statements", label: "Statement", icon: FileText },
-  { href: "/member/chat", label: "Chat", icon: MessageCircle },
-  { href: "/member/help", label: "Helpdesk", icon: Headphones },
-  { href: "/member/security", label: "ความปลอดภัย", icon: ShieldCheck },
-  { href: "/member/notifications", label: "แจ้งเตือน", icon: Bell }
+ {href:"/member",label:"หน้าหลัก",icon:Home},
+ {href:"/member/profile",label:"ข้อมูลสมาชิก",icon:UserRound},
+ {href:"/member/dividend",label:"ปันผล",icon:HandCoins},
+ {href:"/member/requests",label:"คำร้อง",icon:FileText},
+ {href:"/member/security",label:"ความปลอดภัย",icon:ShieldCheck}
 ];
 
 export function MemberShell({ children }: { children: React.ReactNode }) {

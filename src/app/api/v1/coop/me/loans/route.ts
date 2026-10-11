@@ -1,8 +1,18 @@
-import { ok } from "@/core/api/response";
-import { getTomvisAuthContext } from "@/core/auth/context";
+import { BackendError } from "@/modules/coop/adapters/legacy-api-client";
+import { fail, ok } from "@/core/api/response";
+import { requireAuthenticatedMemberContext, UnauthorizedError } from "@/core/auth/context";
 import { CoopMemberService } from "@/modules/coop/services/member-service";
 
 export async function GET() {
-  const data = await new CoopMemberService().getMyDashboard(await getTomvisAuthContext());
-  return ok(data.loans);
+  try {
+    const context = await requireAuthenticatedMemberContext();
+    const data = await new CoopMemberService().getMyDashboard(context);
+    return ok(data.loans);
+  } catch (error) {
+    if(error instanceof BackendError) return fail("BACKEND_ERROR",error.message,error.status);
+    if (error instanceof UnauthorizedError) {
+      return fail("UNAUTHORIZED", error.message, 401);
+    }
+    return fail("COOP_ERROR", error instanceof Error ? error.message : "Cannot load loans", 500);
+  }
 }

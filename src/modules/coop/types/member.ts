@@ -116,7 +116,7 @@ export type DividendRecord = {
   patronageRefund: Money;
   totalNet: Money;
   announcedAt: string;
-  paymentStatus: "APPROVED" | "PAID" | "PENDING_APPROVAL";
+  paymentStatus: "APPROVED" | "PAID" | "PENDING_APPROVAL" | "UNKNOWN";
   paymentChannel: string;
   receivingAccountMasked: string;
   transactionReference?: string;
@@ -135,7 +135,7 @@ export type ServiceRequestSummary = {
   id: string;
   number: string;
   subject: string;
-  status: "SUBMITTED" | "ASSIGNED" | "IN_PROGRESS" | "WAITING_MEMBER" | "RESOLVED" | "CLOSED";
+  status: "SUBMITTED" | "ASSIGNED" | "IN_PROGRESS" | "WAITING_MEMBER" | "RESOLVED" | "CLOSED" | "APPROVED" | "REJECTED";
   updatedAt: string;
 };
 

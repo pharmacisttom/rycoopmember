@@ -6,3 +6,10 @@ coverage
 .env.local
 *.log
 *.tsbuildinfo
+
+# Private session rotation and revocation state
+.session-state/
+
+# Keep deployment credentials private
+.env.*
+!.env.example

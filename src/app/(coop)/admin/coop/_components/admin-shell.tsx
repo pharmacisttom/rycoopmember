@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { SweetAlertAdminLogoutButton } from "@/app/_components/sweet-alert-admin-logout-button";
 import { BarChart3, FileArchive, Headphones, Import, LayoutDashboard, MessageSquare, Newspaper, PiggyBank, ScrollText, Settings, Users, type LucideIcon } from "lucide-react";
 
 const adminNav: Array<{ href: Route; label: string; icon: LucideIcon }> = [
@@ -34,6 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          <SweetAlertAdminLogoutButton />
         </aside>
         <main>{children}</main>
       </div>
