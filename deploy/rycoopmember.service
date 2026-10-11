@@ -1,0 +1,27 @@
+[Unit]
+Description=Rayong cooperative member portal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rycoopmember
+Group=rycoopmember
+WorkingDirectory=/var/www/rycoopmember/current
+EnvironmentFile=/etc/rycoopmember.env
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3100
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/rycoopmember /var/www/rycoopmember/releases
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
